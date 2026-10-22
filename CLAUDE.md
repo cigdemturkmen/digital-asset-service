@@ -20,18 +20,31 @@ YAML config, Actuator (health/info + liveness/readiness probes). Planned: Postgr
 Docker Compose, JUnit 5 + Testcontainers, GitHub Actions.
 
 ## Commands
+- Docker Desktop must be running: `spring-boot:run` and the tests start `asset-service/compose.yaml` (PostgreSQL 18)
+  through Spring Boot's Docker Compose support; connection details come from the container, not application.yml.
 - Build and test a service: `cd asset-service && ./mvnw test`
 - Run locally: `./mvnw spring-boot:run` → http://localhost:8080/actuator/health
 
+## asset-service design
+- Package-by-feature: `wallet` (entity, service, exceptions), `wallet.api` (controllers + record DTOs), `ledger`.
+- Schema is owned by Flyway (`src/main/resources/db/migration`); Hibernate runs with `ddl-auto: validate`.
+- Money is `BigDecimal` / `NUMERIC(19,4)`, compared with `compareTo`, never `double`.
+- `wallets.balance` is a cached projection; `ledger_entries` is the append-only source of truth. Every balance change
+  and its ledger entry are written in one `@Transactional` service method. DB CHECK constraints back up the rules.
+- Timestamps are `Instant` truncated to microseconds (PostgreSQL precision).
+
 ## Conventions
 - Code, commit messages and README in English.
+- Workflow: each feature on its own branch (`feature/<topic>`, e.g. `feature/domain-api`) with small, focused commits
+  → Pull Request with a detailed description (what, why, trade-offs, deliberately deferred) → merge commit (no squash,
+  so history stays readable) → descriptive tag on main (e.g. `domain-api-happy-path`). No internal step numbers in names.
 - Tests: `@SpringBootTest` + `@AutoConfigureMockMvc` (package `org.springframework.boot.webmvc.test.autoconfigure`
   in Boot 4) with `MockMvcTester` and AssertJ.
 
 ## Roadmap
 - [x] 0. Environment: JDK 21, Docker Desktop, Git, IDE
 - [x] 1. Skeleton: Spring Boot + Java 21, Maven Wrapper, git, health endpoint
-- [ ] 2. Domain + REST API: wallet, mint, burn, transfer; PostgreSQL + Flyway
+- [x] 2. Domain + REST API: wallet, mint, burn, transfer; PostgreSQL + Flyway (branch `feature/domain-api`)
 - [ ] 3. Robustness: validation, idempotency key, optimistic locking, ProblemDetail errors, OpenAPI/Swagger
 - [ ] 4. Kafka: event publishing via transactional outbox + separate audit-service consumer
 - [ ] 5. Dockerfiles + Docker Compose (app, Postgres, Kafka, audit-service)
