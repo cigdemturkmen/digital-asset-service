@@ -1,6 +1,17 @@
 spring:
   application:
     name: asset-service
+  jpa:
+    # Flyway owns the schema; Hibernate only checks that entities match it.
+    hibernate:
+      ddl-auto: validate
+    # Don't keep the DB session open while rendering the HTTP response.
+    open-in-view: false
+  docker:
+    compose:
+      # Tests also use compose.yaml for now; replaced by Testcontainers later.
+      skip:
+        in-tests: false
 
 server:
   port: 8080
