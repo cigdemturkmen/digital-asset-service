@@ -1,6 +1,8 @@
 package io.github.cigdemturkmen.digitalasset.asset.wallet.api;
 
 import io.github.cigdemturkmen.digitalasset.asset.wallet.WalletService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+@Tag(name = "Transfers")
 @RestController
 @RequestMapping("/api/v1/transfers")
 public class TransferController {
@@ -18,6 +21,7 @@ public class TransferController {
         this.walletService = walletService;
     }
 
+    @Operation(summary = "Transfer tokens between two wallets")
     @PostMapping
     public TransferResponse transfer(@RequestBody TransferRequest request) {
         UUID transferId = walletService.transfer(request.fromWalletId(), request.toWalletId(), request.amount());

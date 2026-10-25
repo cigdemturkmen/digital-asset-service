@@ -41,7 +41,8 @@ public class WalletService {
         Wallet wallet = get(walletId);
         wallet.credit(amount);
         ledger.save(LedgerEntry.of(walletId, LedgerEntryType.MINT, amount, wallet.getBalance()));
-        // No wallets.save(...): the wallet is managed by Hibernate, so the change is flushed on commit. DIRTY CHECKING
+        // No wallets.save(...): the wallet is a managed entity, so Hibernate detects the change
+        // (dirty checking) and flushes an UPDATE when the transaction commits.
         return wallet;
     }
 

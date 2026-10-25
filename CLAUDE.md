@@ -23,7 +23,11 @@ Docker Compose, JUnit 5 + Testcontainers, GitHub Actions.
 - Docker Desktop must be running: `spring-boot:run` and the tests start `asset-service/compose.yaml` (PostgreSQL 18)
   through Spring Boot's Docker Compose support; connection details come from the container, not application.yml.
 - Build and test a service: `cd asset-service && ./mvnw test`
-- Run locally: `./mvnw spring-boot:run` → http://localhost:8080/actuator/health
+- Run locally: `./mvnw spring-boot:run`, then:
+  - http://localhost:8080/actuator/health (health check)
+  - http://localhost:8080/swagger-ui.html (Swagger UI: try the API in the browser)
+  - http://localhost:8080/v3/api-docs (OpenAPI document as JSON)
+- OpenAPI via springdoc-openapi 3.1.x (Boot 4 line); controllers carry `@Tag` / `@Operation(summary)`.
 
 ## asset-service design
 - Package-by-feature: `wallet` (entity, service, exceptions), `wallet.api` (controllers + record DTOs), `ledger`.
