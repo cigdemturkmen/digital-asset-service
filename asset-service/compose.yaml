@@ -9,4 +9,10 @@ services:
       POSTGRES_USER: asset
       POSTGRES_PASSWORD: asset-local-only
     ports:
-      - "5432"
+      - "15432:5432" # fixed host port for database GUIs; 15432 avoids clashing with a local PostgreSQL
+    volumes:
+      - pgdata:/var/lib/postgresql # PostgreSQL 18 images keep their data under this path
+
+volumes:
+  pgdata:
+    name: asset-pgdata

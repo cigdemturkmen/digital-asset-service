@@ -24,7 +24,9 @@ springdoc-openapi (Swagger UI), Actuator, JUnit 5 + AssertJ.
   - http://localhost:8080/actuator/health (health check)
   - http://localhost:8080/swagger-ui.html (Swagger UI: try the API in the browser)
   - http://localhost:8080/v3/api-docs (OpenAPI document as JSON)
-- Query the local database: `docker compose exec postgres psql -U asset -d assets` (from `asset-service/`)
+- Query the local database: `docker compose exec postgres psql -U asset -d assets` (from `asset-service/`),
+  or connect a GUI to `localhost:15432`, database `assets`, user `asset`, password `asset-local-only`.
+  Data lives in the named volume `asset-pgdata`; `docker compose down -v` deletes it.
 
 ## asset-service design
 - Package-by-feature: `wallet` (entity, service, exceptions), `wallet.api` (controllers + record DTOs), `ledger`.
