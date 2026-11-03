@@ -7,6 +7,10 @@ spring:
       ddl-auto: validate
     # Don't keep the DB session open while rendering the HTTP response.
     open-in-view: false
+  web:
+    # Validation messages in English regardless of the machine's or the client's locale.
+    locale: en
+    locale-resolver: fixed
   docker:
     compose:
       # Tests also use compose.yaml for now; replaced by Testcontainers later.

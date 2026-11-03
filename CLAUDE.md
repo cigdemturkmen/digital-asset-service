@@ -34,6 +34,10 @@ springdoc-openapi (Swagger UI), Actuator, JUnit 5 + AssertJ.
 - Money is `BigDecimal` / `NUMERIC(19,4)`, compared with `compareTo`, never `double`.
 - `wallets.balance` is a cached projection; `ledger_entries` is the append-only source of truth. Every balance change
   and its ledger entry are written in one `@Transactional` service method. DB CHECK constraints back up the rules.
+- Request bodies are validated with Bean Validation (`@Valid` → 400); `Wallet` re-checks its own invariants for
+  callers that bypass the API. Business rule violations (insufficient balance) are 422.
+- Errors are RFC 9457 problem details (`application/problem+json`) built in `ApiExceptionHandler`; domain
+  exceptions know nothing about HTTP. Unexpected errors are logged and returned as a generic 500.
 - Timestamps are `Instant` truncated to microseconds (PostgreSQL precision).
 - Controllers carry `@Tag` / `@Operation(summary)` for the generated OpenAPI document.
 
