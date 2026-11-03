@@ -4,6 +4,7 @@ import io.github.cigdemturkmen.digitalasset.asset.wallet.Wallet;
 import io.github.cigdemturkmen.digitalasset.asset.wallet.WalletService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +31,7 @@ public class WalletController {
 
     @Operation(summary = "Create a wallet")
     @PostMapping
-    public ResponseEntity<WalletResponse> create(@RequestBody CreateWalletRequest request) {
+    public ResponseEntity<WalletResponse> create(@Valid @RequestBody CreateWalletRequest request) {
         Wallet wallet = walletService.create(request.ownerName());
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(wallet.getId()).toUri();
@@ -45,13 +46,13 @@ public class WalletController {
 
     @Operation(summary = "Mint (issue) new tokens into a wallet")
     @PostMapping("/{walletId}/mint")
-    public WalletResponse mint(@PathVariable UUID walletId, @RequestBody AmountRequest request) {
+    public WalletResponse mint(@PathVariable UUID walletId, @Valid @RequestBody AmountRequest request) {
         return WalletResponse.from(walletService.mint(walletId, request.amount()));
     }
 
     @Operation(summary = "Burn (redeem) tokens from a wallet")
     @PostMapping("/{walletId}/burn")
-    public WalletResponse burn(@PathVariable UUID walletId, @RequestBody AmountRequest request) {
+    public WalletResponse burn(@PathVariable UUID walletId, @Valid @RequestBody AmountRequest request) {
         return WalletResponse.from(walletService.burn(walletId, request.amount()));
     }
 

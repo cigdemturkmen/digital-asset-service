@@ -35,6 +35,9 @@ public class Wallet {
     }
 
     public Wallet(String ownerName) {
+        if (ownerName == null || ownerName.isBlank()) {
+            throw new IllegalArgumentException("ownerName must not be blank");
+        }
         this.id = UUID.randomUUID();
         this.ownerName = ownerName;
         this.balance = BigDecimal.ZERO;
@@ -42,14 +45,23 @@ public class Wallet {
     }
 
     public void credit(BigDecimal amount) {
+        requirePositive(amount);
         balance = balance.add(amount);
     }
 
     public void debit(BigDecimal amount) {
+        requirePositive(amount);
         if (balance.compareTo(amount) < 0) {
             throw new InsufficientBalanceException(id, balance, amount);
         }
         balance = balance.subtract(amount);
+    }
+
+    // The API validates requests first; this guard also protects callers that don't go through a controller.
+    private static void requirePositive(BigDecimal amount) {
+        if (amount == null || amount.signum() <= 0) {
+            throw new IllegalArgumentException("amount must be positive, got " + amount);
+        }
     }
 
     public UUID getId() {
