@@ -56,6 +56,9 @@ public class WalletService {
 
     @Transactional
     public UUID transfer(UUID fromWalletId, UUID toWalletId, BigDecimal amount) {
+        if (fromWalletId.equals(toWalletId)) {
+            throw new SameWalletTransferException(fromWalletId);
+        }
         Wallet from = get(fromWalletId);
         Wallet to = get(toWalletId);
         UUID transferId = UUID.randomUUID();

@@ -1,6 +1,7 @@
 package io.github.cigdemturkmen.digitalasset.asset;
 
 import io.github.cigdemturkmen.digitalasset.asset.wallet.InsufficientBalanceException;
+import io.github.cigdemturkmen.digitalasset.asset.wallet.SameWalletTransferException;
 import io.github.cigdemturkmen.digitalasset.asset.wallet.WalletNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,15 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         problem.setProperty("walletId", ex.getWalletId());
         problem.setProperty("balance", ex.getBalance());
         problem.setProperty("requested", ex.getRequested());
+        return problem;
+    }
+
+    // 400, not 422: the request is invalid on its own, without looking at any wallet's state.
+    @ExceptionHandler(SameWalletTransferException.class)
+    ProblemDetail sameWalletTransfer(SameWalletTransferException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("Same wallet transfer");
+        problem.setProperty("walletId", ex.getWalletId());
         return problem;
     }
 

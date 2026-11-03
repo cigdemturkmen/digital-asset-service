@@ -75,6 +75,21 @@ class ProblemDetailsTests {
     }
 
     @Test
+    void transferToTheSameWalletIsRejectedAndWritesNoLedgerEntries() {
+        post(mintUri(), "{\"amount\": 10}");
+
+        String body = assertProblem(post("/api/v1/transfers",
+                "{\"fromWalletId\": \"%s\", \"toWalletId\": \"%s\", \"amount\": 1}".formatted(walletId, walletId)),
+                HttpStatus.BAD_REQUEST);
+
+        assertThat((String) JsonPath.read(body, "$.title")).isEqualTo("Same wallet transfer");
+        assertThat((String) JsonPath.read(body, "$.walletId")).isEqualTo(walletId);
+        assertBalance("10");
+        assertThat(mvc.get().uri("/api/v1/wallets/{id}/ledger", walletId))
+                .bodyJson().extractingPath("$.length()").isEqualTo(1);
+    }
+
+    @Test
     void malformedJsonIsBadRequest() {
         assertProblem(post(mintUri(), "{\"amount\":"), HttpStatus.BAD_REQUEST);
     }
