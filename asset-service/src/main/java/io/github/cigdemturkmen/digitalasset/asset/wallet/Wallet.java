@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -29,6 +30,10 @@ public class Wallet {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    // Managed by Hibernate only (no setter): bumped on every UPDATE, which fails if another transaction got there first.
+    @Version
+    private long version;
 
     /** Required by JPA; not for application code. */
     protected Wallet() {
