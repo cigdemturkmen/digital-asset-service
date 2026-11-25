@@ -5,6 +5,7 @@ import io.github.cigdemturkmen.digitalasset.asset.wallet.SameWalletTransferExcep
 import io.github.cigdemturkmen.digitalasset.asset.wallet.WalletNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -54,6 +55,15 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         problem.setTitle("Same wallet transfer");
         problem.setProperty("walletId", ex.getWalletId());
+        return problem;
+    }
+
+    // Retries are exhausted: another request kept changing the same wallet. Safe for the client to retry.
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    ProblemDetail concurrentModification(OptimisticLockingFailureException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "The wallet was modified by another request at the same time; please retry");
+        problem.setTitle("Concurrent modification");
         return problem;
     }
 

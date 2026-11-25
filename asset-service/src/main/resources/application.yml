@@ -7,6 +7,9 @@ spring:
       ddl-auto: validate
     # Don't keep the DB session open while rendering the HTTP response.
     open-in-view: false
+    properties:
+      # Flush UPDATEs sorted by id, so two transfers in opposite directions lock rows in the same order (no deadlock).
+      hibernate.order_updates: true
   web:
     # Validation messages in English regardless of the machine's or the client's locale.
     locale: en

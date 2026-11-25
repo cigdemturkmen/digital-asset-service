@@ -3,6 +3,8 @@ package io.github.cigdemturkmen.digitalasset.asset.wallet;
 import io.github.cigdemturkmen.digitalasset.asset.ledger.LedgerEntry;
 import io.github.cigdemturkmen.digitalasset.asset.ledger.LedgerEntryRepository;
 import io.github.cigdemturkmen.digitalasset.asset.ledger.LedgerEntryType;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +15,13 @@ import java.util.UUID;
 /**
  * Token operations. Every balance change and its ledger entry are written in the same
  * database transaction, so the ledger always explains the balance.
+ * <p>
+ * Concurrent updates of the same wallet are detected by its {@code @Version} column. The losing call is retried:
+ * the retry proxy sits outside the transaction, so each attempt runs in a new transaction and re-reads the wallet.
+ * If every attempt conflicts, the {@link OptimisticLockingFailureException} reaches the caller (HTTP 409).
  */
 @Service
+@Retryable(includes = OptimisticLockingFailureException.class, maxRetries = 5, delay = 10, jitter = 10, multiplier = 2)
 public class WalletService {
 
     private final WalletRepository wallets;
